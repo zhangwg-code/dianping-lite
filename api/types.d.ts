@@ -1,3 +1,4 @@
+/// <reference types="express" />
 import type { UserProfile } from '../shared/types'
 
 declare global {
