@@ -1,23 +1,15 @@
 {
+  "extends": "../tsconfig.json",
   "compilerOptions": {
-    "target": "ES2020",
-    "module": "commonjs",
-    "lib": ["ES2020"],
-    "skipLibCheck": true,
-    "moduleResolution": "node",
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
-    "resolveJsonModule": true,
-    "strict": true,
-    "forceConsistentCasingInFileNames": true,
-    "declaration": true,
-    "typeRoots": ["./node_modules/@types", "../node_modules/@types"]
+    "module": "ESNext",
+    "noEmit": false,
+    "outDir": "./dist",
+    "types": ["node", "express"]
   },
   "include": [
     "./**/*.ts"
   ],
   "exclude": [
-    "node_modules",
-    "dist"
+    "node_modules"
   ]
 }
