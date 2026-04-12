@@ -1,3 +1,4 @@
+import type { Request, Response } from 'express'
 import type { UserProfile } from '../shared/types'
 
 declare global {
