@@ -2,12 +2,7 @@
  * This is a API server
  */
 
-import express, {
-  type Request,
-  type Response,
-  type NextFunction,
-  type Application,
-} from 'express'
+import express from 'express'
 import cors from 'cors'
 import dotenv from 'dotenv'
 import authRoutes from './routes/auth.js'
@@ -19,7 +14,7 @@ import { fail } from './lib/http.js'
 // load env
 dotenv.config()
 
-const app: Application = express()
+const app = express()
 
 app.use(cors())
 app.use(express.json({ limit: '10mb' }))
@@ -36,21 +31,18 @@ app.use('/api/reviews', reviewsRoutes)
 /**
  * health
  */
-app.use(
-  '/api/health',
-  (req: Request, res: Response): void => {
-    res.status(200).json({
-      success: true,
-      message: 'ok',
-    })
-  },
-)
+app.use('/api/health', (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: 'ok',
+  })
+})
 
 /**
  * error handler middleware
  */
-app.use((error: Error, req: Request, res: Response, _next: NextFunction) => {
-  void _next
+app.use((error: Error, req, res, next) => {
+  void next
   const msg = error.message && error.message.startsWith('Missing env var:')
     ? error.message
     : '服务异常'
@@ -62,7 +54,7 @@ app.use((error: Error, req: Request, res: Response, _next: NextFunction) => {
 /**
  * 404 handler
  */
-app.use((req: Request, res: Response) => {
+app.use((req, res) => {
   res.status(404).json(fail('NOT_FOUND', 'API not found'))
 })
 
