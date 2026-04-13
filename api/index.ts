@@ -353,6 +353,53 @@ app.post('/api/merchants/:merchantId/reviews', requireAuth, asyncHandler(async (
 }))
 
 /**
+ * Delete Review Route
+ */
+app.delete('/api/reviews/:reviewId', requireAuth, asyncHandler(async (req, res) => {
+  const supabase = createUserClient(req.auth!.accessToken)
+  
+  // First, get the review to check ownership and get merchant_id
+  const { data: review, error: fetchError } = await supabase
+    .from('reviews')
+    .select('id, author_user_id, merchant_id')
+    .eq('id', req.params.reviewId)
+    .single<Review>()
+
+  if (fetchError || !review) {
+    res.status(404).json(fail('NOT_FOUND', '评价不存在'))
+    return
+  }
+
+  // Check if user owns the review
+  if (review.author_user_id !== req.auth!.userId) {
+    res.status(403).json(fail('FORBIDDEN', '无权删除此评价'))
+    return
+  }
+
+  // Delete the review
+  const { error: deleteError } = await supabase
+    .from('reviews')
+    .delete()
+    .eq('id', req.params.reviewId)
+
+  if (deleteError) {
+    res.status(500).json(fail('DB_ERROR', deleteError.message))
+    return
+  }
+
+  // Update merchant stats after deletion
+  const { error: statsError } = await supabase.rpc('recompute_merchant_stats', {
+    p_merchant_id: review.merchant_id,
+  })
+  
+  if (statsError) {
+    console.error('Failed to update merchant stats after deletion:', statsError)
+  }
+
+  res.json(ok({ deleted: true }))
+}))
+
+/**
  * Error handler middleware
  */
 app.use((error: Error, req, res, next) => {
