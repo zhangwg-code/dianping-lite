@@ -4,7 +4,7 @@
 import express from 'express'
 import cors from 'cors'
 import dotenv from 'dotenv'
-import { createAnonClient, createUserClient } from './lib/supabase.js'
+import { createAnonClient, createUserClient, createServiceRoleClient } from './lib/supabase.js'
 import { asyncHandler } from './lib/asyncHandler.js'
 import { fail, ok } from './lib/http.js'
 import { requireAuth } from './middleware/auth.js'
