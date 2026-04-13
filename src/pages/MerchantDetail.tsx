@@ -184,8 +184,21 @@ export default function MerchantDetail() {
                                     method: 'DELETE',
                                   })
                                   if (resp.ok) {
-                                    setReviews((xs) => xs.filter((x) => x.id !== r.id))
-                                    setTotal((t) => Math.max(0, t - 1))
+                                    // Reload merchant data to update rating stats
+                                    const m = await apiFetch<{ merchant: Merchant }>(`/api/merchants/${merchant.id}`, { method: 'GET' })
+                                    if (m.ok) {
+                                      setMerchant(m.data.merchant)
+                                    }
+                                    // Reload reviews
+                                    const r = await apiFetch<{ items: ReviewItem[]; total: number }>(
+                                      `/api/merchants/${merchant.id}/reviews?page=1&pageSize=10`,
+                                      { method: 'GET' },
+                                    )
+                                    if (r.ok) {
+                                      setReviews(r.data.items)
+                                      setTotal(r.data.total)
+                                      setPage(1)
+                                    }
                                   }
                                 }}
                               >
