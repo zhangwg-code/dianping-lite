@@ -332,17 +332,21 @@ app.post('/api/merchants/:merchantId/reviews', requireAuth, asyncHandler(async (
     .single<Review>()
 
   if (reviewError) {
+    console.error('Failed to insert review:', reviewError)
     res.status(500).json(fail('DB_ERROR', reviewError.message))
     return
   }
 
-  // Manually trigger merchant stats update (fallback in case trigger doesn't fire)
-  const { error: statsError } = await supabase.rpc('recompute_merchant_stats', {
+  // Manually trigger merchant stats update
+  console.log('Updating merchant stats for:', req.params.merchantId)
+  const { data: statsData, error: statsError } = await supabase.rpc('recompute_merchant_stats', {
     p_merchant_id: req.params.merchantId,
   })
   
   if (statsError) {
-    console.error('Failed to update merchant stats:', statsError.message)
+    console.error('Failed to update merchant stats:', statsError)
+  } else {
+    console.log('Merchant stats updated successfully:', statsData)
   }
 
   res.json(ok({ review: { ...reviewData, author_display_name: pseudoName(reviewData.author_user_id) } }))
