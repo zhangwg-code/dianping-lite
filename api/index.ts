@@ -279,7 +279,7 @@ app.get('/api/merchants/:id', asyncHandler(async (req, res) => {
 /**
  * Reviews Routes
  */
-app.get('/api/reviews/merchant/:merchantId', asyncHandler(async (req, res) => {
+app.get('/api/merchants/:merchantId/reviews', asyncHandler(async (req, res) => {
   const page = Math.max(1, Number(req.query.page || 1))
   const pageSize = Math.min(50, Math.max(1, Number(req.query.pageSize || 10)))
   const rangeFrom = (page - 1) * pageSize
