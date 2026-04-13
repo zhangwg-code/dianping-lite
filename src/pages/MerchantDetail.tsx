@@ -137,6 +137,12 @@ export default function MerchantDetail() {
                           { method: 'POST', body: JSON.stringify({ rating, content }) },
                         )
                         if (resp.ok) {
+                          // Reload merchant data to update rating stats
+                          const m = await apiFetch<{ merchant: Merchant }>(`/api/merchants/${merchant.id}`, { method: 'GET' })
+                          if (m.ok) {
+                            setMerchant(m.data.merchant)
+                          }
+                          // Reload reviews
                           const r = await apiFetch<{ items: ReviewItem[]; total: number }>(
                             `/api/merchants/${merchant.id}/reviews?page=1&pageSize=10`,
                             { method: 'GET' },
