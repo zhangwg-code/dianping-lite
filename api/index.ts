@@ -337,16 +337,21 @@ app.post('/api/merchants/:merchantId/reviews', requireAuth, asyncHandler(async (
     return
   }
 
-  // Manually trigger merchant stats update
+  // Manually trigger merchant stats update using service role for proper permissions
   console.log('Updating merchant stats for:', req.params.merchantId)
-  const { data: statsData, error: statsError } = await supabase.rpc('recompute_merchant_stats', {
-    p_merchant_id: req.params.merchantId,
-  })
-  
-  if (statsError) {
-    console.error('Failed to update merchant stats:', statsError)
-  } else {
-    console.log('Merchant stats updated successfully:', statsData)
+  try {
+    const serviceSupabase = createServiceRoleClient()
+    const { error: statsError } = await serviceSupabase.rpc('recompute_merchant_stats', {
+      p_merchant_id: req.params.merchantId,
+    })
+    
+    if (statsError) {
+      console.error('Failed to update merchant stats:', statsError.message)
+    } else {
+      console.log('Merchant stats updated successfully')
+    }
+  } catch (err) {
+    console.error('Error calling recompute_merchant_stats:', err)
   }
 
   res.json(ok({ review: { ...reviewData, author_display_name: pseudoName(reviewData.author_user_id) } }))
@@ -387,13 +392,20 @@ app.delete('/api/reviews/:reviewId', requireAuth, asyncHandler(async (req, res) 
     return
   }
 
-  // Update merchant stats after deletion
-  const { error: statsError } = await supabase.rpc('recompute_merchant_stats', {
-    p_merchant_id: review.merchant_id,
-  })
-  
-  if (statsError) {
-    console.error('Failed to update merchant stats after deletion:', statsError)
+  // Update merchant stats after deletion using service role for proper permissions
+  try {
+    const serviceSupabase = createServiceRoleClient()
+    const { error: statsError } = await serviceSupabase.rpc('recompute_merchant_stats', {
+      p_merchant_id: review.merchant_id,
+    })
+    
+    if (statsError) {
+      console.error('Failed to update merchant stats after deletion:', statsError.message)
+    } else {
+      console.log('Merchant stats updated after review deletion')
+    }
+  } catch (err) {
+    console.error('Error calling recompute_merchant_stats:', err)
   }
 
   res.json(ok({ deleted: true }))
