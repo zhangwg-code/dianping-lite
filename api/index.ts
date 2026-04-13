@@ -305,7 +305,7 @@ app.get('/api/merchants/:merchantId/reviews', asyncHandler(async (req, res) => {
   res.json(ok({ items, page, pageSize, total: count || 0 }))
 }))
 
-app.post('/api/reviews/merchant/:merchantId', requireAuth, asyncHandler(async (req, res) => {
+app.post('/api/merchants/:merchantId/reviews', requireAuth, asyncHandler(async (req, res) => {
   const rating = Number(req.body?.rating)
   const content = typeof req.body?.content === 'string' ? req.body.content : ''
   if (!Number.isFinite(rating) || rating < 1 || rating > 5) {
